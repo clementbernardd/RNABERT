@@ -5,7 +5,7 @@
   "initializer_range": 0.02,
   "intermediate_size": 40,
   "max_position_embeddings": 440,
-  "vocab_size": 6,
+  "vocab_size": 8,
   "ss_size": 8,
   "type_vocab_size": 2,
   "margin_FP": 0.1,
