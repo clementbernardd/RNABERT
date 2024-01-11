@@ -1,7 +1,7 @@
 import copy
 import math
 import json
-from attrdict import AttrDict
+# from attrdict import AttrDict
 import collections
 
 import torch
@@ -40,6 +40,17 @@ DEFAULT_ATTRIBUTES = (
     'utilization.gpu',
     'utilization.memory'
 )
+
+
+from collections import UserDict
+class AttrDict(UserDict):
+  def __getattr__(self, key):
+      return self.__getitem__(key)
+  def __setattr__(self, key, value):
+      if key == "data":
+          return super().__setattr__(key, value)
+      return self.__setitem__(key, value)
+
 
 def get_gpu_info(nvidia_smi_path='nvidia-smi', keys=DEFAULT_ATTRIBUTES, no_units=True):
     nu_opt = '' if not no_units else ',nounits'

@@ -6,7 +6,6 @@ from torchvision import transforms, datasets
 import copy
 import itertools
 from Bio import AlignIO
-from Bio.Alphabet import generic_rna
 
 class DATA:
     def __init__(self, args, config):
@@ -72,7 +71,19 @@ class DATA:
         transform = transforms.Compose([transforms.ToTensor()])
         ds_MLM_SFP_ALIGN = MyDataset("SHOW", low_seq, masked_seq, family, seqs_len)
         dl_MLM_SFP_ALIGN = torch.utils.data.DataLoader(ds_MLM_SFP_ALIGN, self.batch_size, shuffle=False)
-        return seqs, low_seq, dl_MLM_SFP_ALIGN 
+        return seqs, low_seq, dl_MLM_SFP_ALIGN
+
+    def load_data_EMB_custom(self, seqs):
+        families = [0]
+        family = np.tile(np.array(families), self.mag)
+        seqs_len = np.tile(np.array([len(i) for i in seqs]), self.mag)
+        k = 1
+        kmer_seqs = kmer(seqs, k)
+        masked_seq, low_seq = mask(kmer_seqs, rate = 0, mag = self.mag)
+        kmer_dict = make_dict(k)
+        masked_seq = np.array(convert(masked_seq, kmer_dict, self.max_length))
+        low_seq = np.array(convert(low_seq, kmer_dict, self.max_length))
+        return low_seq, masked_seq, family, seqs_len
 
     def load_data_MUL(self, data_sets, train_type):
         families = []
@@ -109,7 +120,7 @@ class DATA:
         seqs = []
         SS = []
         for i, data_set in enumerate(data_sets):
-            align = AlignIO.read(data_set, "stockholm", alphabet=generic_rna)
+            align = AlignIO.read(data_set, "stockholm" )
             cons_SS = align.column_annotations["secondary_structure"]
             for j, record in enumerate(align):
                 gapped_seq = str(record.seq).upper()
